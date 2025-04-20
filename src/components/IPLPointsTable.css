@@ -1,0 +1,170 @@
+/* src/components/IPLPointsTable.css */
+.ipl-points-table {
+    max-width: 1200px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+    color: white;
+  }
+  
+  .ipl-points-table h2 {
+    font-size: 2rem;
+    color: #f5a623;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 700;
+  }
+  
+  .ipl-points-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1a2a5b;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .ipl-points-table thead {
+    background: linear-gradient(to bottom, #f5a623, #e91e63);
+    color: #0d1a35;
+  }
+  
+  .ipl-points-table th,
+  .ipl-points-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .ipl-points-table th {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+  }
+  
+  .ipl-points-table tbody tr {
+    transition: background-color 0.3s ease;
+  }
+  
+  .ipl-points-table tbody tr:nth-child(even) {
+    background-color: #2a3b7b;
+  }
+  
+  .ipl-points-table tbody tr:hover {
+    background-color: #3a4b9b;
+  }
+  
+  .ipl-points-table .loading,
+  .ipl-points-table .error {
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 50px;
+    color: #f5a623;
+  }
+  
+  .ipl-points-table .error {
+    color: #e91e63;
+  }
+  
+  /* Styles for match cards */
+  .ipl-points-table .match-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .ipl-points-table .team-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem; /* Matches Tailwind gap-6 */
+    max-width: 28rem; /* Matches Tailwind max-w-md */
+  }
+  
+  .ipl-points-table .team-block {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Matches Tailwind gap-2 */
+    min-width: 100px; /* Ensures consistent width for centering */
+    justify-content: flex-end; /* Aligns Team 1 right */
+  }
+  
+  .ipl-points-table .team-block:last-child {
+    justify-content: flex-start; /* Aligns Team 2 left */
+  }
+  
+  .ipl-points-table .vs-text {
+    font-weight: bold;
+    color: #6b7280; /* Matches Tailwind text-gray-500 */
+  }
+  
+  .ipl-points-table .team-logo {
+    width: 2.5rem; /* Matches Tailwind w-10 */
+    height: 2.5rem; /* Matches Tailwind h-10 */
+    object-fit: contain;
+  }
+  
+  .ipl-points-table .team-name {
+    font-size: 0.875rem; /* Matches Tailwind text-sm */
+    font-weight: 600;
+    white-space: nowrap; /* Prevents wrapping for consistent centering */
+  }
+  
+  /* Styles for probability display */
+  .ipl-points-table .probability-container {
+    width: 200px; /* Fixed width for consistent alignment */
+    text-align: center;
+  }
+  
+  .ipl-points-table .probability-teams {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .ipl-points-table .probability-team {
+    font-size: 0.875rem; /* Matches text-sm */
+    color: #1a2a5b; /* Dark blue for contrast */
+  }
+  
+  .ipl-points-table .probability-team strong {
+    font-weight: 600;
+  }
+  
+  .ipl-points-table .probability-icon {
+    display: inline-block;
+    margin-left: 0.25rem;
+  }
+  
+  .ipl-points-table .probability-bar {
+    display: flex;
+    height: 8px;
+    background-color: #e5e7eb; /* Light gray background, matches Tailwind gray-200 */
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+  
+  .ipl-points-table .probability-bar-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+  
+  .ipl-points-table .probability-bar-fill.team1 {
+    background-color: #3b82f6; /* Blue for Team 1, matches Tailwind blue-500 */
+  }
+  
+  .ipl-points-table .probability-bar-fill.team2 {
+    background-color: #f97316; /* Orange for Team 2, matches Tailwind orange-500 */
+  }
+  
+  .ipl-points-table .probability-label {
+    font-size: 0.75rem; /* Matches Tailwind text-xs */
+    color: #6b7280; /* Matches Tailwind text-gray-500 */
+    text-transform: uppercase;
+  }
