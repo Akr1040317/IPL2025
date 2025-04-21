@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 from dateutil import parser as date_parser
 import hashlib
 import logging
+import os
+import json
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -21,7 +23,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Initialize Firebase
-cred = credentials.Certificate("serviceAccountKey.json")
+sa = json.loads(os.environ["FIREBASE_SA_KEY"])
+cred = credentials.Certificate(sa)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
