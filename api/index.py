@@ -509,8 +509,19 @@ def refresh_if_needed():
 @app.route("/api/refresh", methods=["GET"])
 def refresh():
     try:
+        # re‐scrape & push into Firestore
         refresh_if_needed()
-        return jsonify({"status": "ok"}), 200
+
+        # now read back the metadata doc
+        md = db.collection("iplCache").document("metadata").get().to_dict() or {}
+        ts = md.get("lastUpdated")
+        # convert Firestore Timestamp -> ISO string
+        last_updated = ts.isoformat() if hasattr(ts, "isoformat") else None
+
+        return jsonify({
+            "status": "ok",
+            "lastUpdated": last_updated
+        }), 200
     except Exception as e:
         logging.exception("💥 Refresh failed")
         return jsonify({"error": str(e)}), 500
@@ -518,6 +529,14 @@ def refresh():
 # ──────────────────────────────────────────────────────────────────────────────
 # Fast read endpoints, no scraping on each call
 # ──────────────────────────────────────────────────────────────────────────────
+@app.route("/api/metadata", methods=["GET"])
+def metadata():
+    """Tell client when we last ran our cron/refresh."""
+    md = db.collection("iplCache").document("metadata").get().to_dict() or {}
+    ts = md.get("lastUpdated")
+    last_updated = ts.isoformat() if hasattr(ts, "isoformat") else None
+    return jsonify({ "lastUpdated": last_updated }), 200
+
 @app.route("/api/standings", methods=["GET"])
 def get_standings():
     doc = db.collection("iplCache").document("standings").get()

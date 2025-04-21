@@ -103,6 +103,8 @@ const IPLPointsTable = ({ favoriteTeam }) => {
   const [error, setError] = useState(null);
   const [showAllPastMatches, setShowAllPastMatches] = useState(false);
   const [showAllUpcomingMatches, setShowAllUpcomingMatches] = useState(false);  
+  const [lastRefreshed, setLastRefreshed] = useState(null);
+
 
 
   const getSimulatedStandings = () => {
@@ -140,7 +142,35 @@ const IPLPointsTable = ({ favoriteTeam }) => {
   
       // Log the random selection for debugging
       console.log(`Match: ${Team_1} (${Probability?.Team_1}%) vs ${Team_2} (${Probability?.Team_2}%), Random: ${random.toFixed(3)}, Winner: ${winner}`);
-  
+      const fetchAll = async () => {
+        // fetch standings / matches / upcoming as you already do…
+        // then also fetch metadata:
+        const metaRes = await fetch("/api/metadata");
+        if (metaRes.ok) {
+          const { lastUpdated } = await metaRes.json();
+          setLastRefreshed(lastUpdated);
+        }
+      };
+    
+      // on mount
+      useEffect(() => {
+        fetchAll();
+      }, []);
+      const handleRefresh = async () => {
+        try {
+          // optimistically disable UI if you like…
+          const res = await fetch("/api/refresh");
+          if (!res.ok) throw new Error("Refresh failed");
+          const { lastUpdated } = await res.json();
+          setLastRefreshed(lastUpdated);
+    
+          // now re‑load your data
+          await fetchAll();
+        } catch (err) {
+          console.error(err);
+          alert("Could not refresh: " + err.message);
+        }
+      };
       // Update winner
       const w = find(winner);
       if (w) {
@@ -251,6 +281,23 @@ const teamColors = {
     <div className="ipl-points-table">
       <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-[#f5a623]">IPL 2025 Standings</h2>
+          <div className="flex items-center space-x-4">
+          <button
+            onClick={handleRefresh}
+            className="rounded bg-[#f5a623] px-3 py-1 text-sm font-semibold text-[#0d1a35] hover:bg-[#e91e63]"
+          >
+            🔄 Refresh Now
+          </button>
+          {lastRefreshed && (
+            <span className="text-xs text-gray-300">
+              Last updated:{" "}
+              {new Date(lastRefreshed).toLocaleString(undefined, {
+                dateStyle: "short",
+                timeStyle: "short",
+              })}
+            </span>
+          )}
+        </div>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
