@@ -178,21 +178,21 @@ const IPLPointsTable = ({ favoriteTeam }) => {
     const fetchData = async () => {
       try {
         // Fetch standings
-        const standingsResponse = await fetch('http://localhost:5001/api/standings');
+        const standingsResponse     = await fetch('/api/standings');
         if (!standingsResponse.ok) {
           throw new Error('Failed to fetch standings');
         }
         const standingsData = await standingsResponse.json();
 
         // Fetch past matches
-        const pastMatchesResponse = await fetch('http://localhost:5001/api/matches');
+        const pastMatchesResponse   = await fetch('/api/matches');
         if (!pastMatchesResponse.ok) {
           throw new Error('Failed to fetch past matches');
         }
         const pastMatchesData = await pastMatchesResponse.json();
 
         // Fetch upcoming matches
-        const upcomingMatchesResponse = await fetch('http://localhost:5001/api/upcoming-matches');
+        const upcomingMatchesResponse = await fetch('/api/upcoming-matches');
         if (!upcomingMatchesResponse.ok) {
           throw new Error('Failed to fetch upcoming matches');
         }
