@@ -104,9 +104,57 @@ const IPLPointsTable = ({ favoriteTeam }) => {
   const [showAllPastMatches, setShowAllPastMatches] = useState(false);
   const [showAllUpcomingMatches, setShowAllUpcomingMatches] = useState(false);  
   const [lastRefreshed, setLastRefreshed] = useState(null);
-
-
-
+  const [loadingRefresh, setLoadingRefresh]   = useState(false);
+  const fetchAll = async () => {
+        setLoading(true);
+        try {
+          const [stRes, pastRes, upRes, metaRes] = await Promise.all([
+            fetch("/api/standings"),
+            fetch("/api/matches"),
+            fetch("/api/upcoming-matches"),
+            fetch("/api/metadata"),
+          ]);
+          if (!stRes.ok || !pastRes.ok || !upRes.ok || !metaRes.ok) {
+           throw new Error("One of the fetches failed");
+          }
+          const [stData, pastData, upData, metaData] = await Promise.all([
+            stRes.json(),
+            pastRes.json(),
+            upRes.json(),
+           metaRes.json(),
+          ]);
+          setStandings(stData);
+          setPastMatches(pastData);
+          setUpcomingMatches(upData);
+          setLastRefreshed(metaData.lastUpdated);
+          setError(null);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      // 2️⃣ Define your manual‐refresh handler here too
+      const handleRefresh = async () => {
+        setLoadingRefresh(true);
+        try {
+          const res = await fetch("/api/refresh");
+          if (!res.ok) throw new Error("Refresh failed");
+          const { lastUpdated } = await res.json();
+          setLastRefreshed(lastUpdated);
+          await fetchAll();
+        } catch (err) {
+          alert("Could not refresh: " + err.message);
+        } finally {
+          setLoadingRefresh(false);
+        }
+      };
+      // ──────────────────────────────────────────────
+  // 3️⃣ On‑mount, load everything once
+  useEffect(() => {
+    fetchAll();
+  }, []);
   const getSimulatedStandings = () => {
     // Deep-clone current table rows
     const sim = standings.map(r => ({
@@ -142,35 +190,7 @@ const IPLPointsTable = ({ favoriteTeam }) => {
   
       // Log the random selection for debugging
       console.log(`Match: ${Team_1} (${Probability?.Team_1}%) vs ${Team_2} (${Probability?.Team_2}%), Random: ${random.toFixed(3)}, Winner: ${winner}`);
-      const fetchAll = async () => {
-        // fetch standings / matches / upcoming as you already do…
-        // then also fetch metadata:
-        const metaRes = await fetch("/api/metadata");
-        if (metaRes.ok) {
-          const { lastUpdated } = await metaRes.json();
-          setLastRefreshed(lastUpdated);
-        }
-      };
-    
-      // on mount
-      useEffect(() => {
-        fetchAll();
-      }, []);
-      const handleRefresh = async () => {
-        try {
-          // optimistically disable UI if you like…
-          const res = await fetch("/api/refresh");
-          if (!res.ok) throw new Error("Refresh failed");
-          const { lastUpdated } = await res.json();
-          setLastRefreshed(lastUpdated);
-    
-          // now re‑load your data
-          await fetchAll();
-        } catch (err) {
-          console.error(err);
-          alert("Could not refresh: " + err.message);
-        }
-      };
+      
       // Update winner
       const w = find(winner);
       if (w) {
@@ -204,42 +224,6 @@ const IPLPointsTable = ({ favoriteTeam }) => {
     return sim;
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch standings
-        const standingsResponse     = await fetch('/api/standings');
-        if (!standingsResponse.ok) {
-          throw new Error('Failed to fetch standings');
-        }
-        const standingsData = await standingsResponse.json();
-
-        // Fetch past matches
-        const pastMatchesResponse   = await fetch('/api/matches');
-        if (!pastMatchesResponse.ok) {
-          throw new Error('Failed to fetch past matches');
-        }
-        const pastMatchesData = await pastMatchesResponse.json();
-
-        // Fetch upcoming matches
-        const upcomingMatchesResponse = await fetch('/api/upcoming-matches');
-        if (!upcomingMatchesResponse.ok) {
-          throw new Error('Failed to fetch upcoming matches');
-        }
-        const upcomingMatchesData = await upcomingMatchesResponse.json();
-
-        setStandings(standingsData);
-        setPastMatches(pastMatchesData);
-        setUpcomingMatches(upcomingMatchesData);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -284,10 +268,16 @@ const teamColors = {
           <div className="flex items-center space-x-4">
           <button
             onClick={handleRefresh}
-            className="rounded bg-[#f5a623] px-3 py-1 text-sm font-semibold text-[#0d1a35] hover:bg-[#e91e63]"
+            disabled={loadingRefresh}
+            className={`rounded px-3 py-1 text-sm font-semibold ${
+              loadingRefresh
+                ? "bg-gray-400 text-gray-800 cursor-wait"
+                : "bg-[#f5a623] text-[#0d1a35] hover:bg-[#e91e63]"
+            }`}
           >
-            🔄 Refresh Now
+            {loadingRefresh ? "Refreshing…" : "🔄 Refresh Now"}
           </button>
+
           {lastRefreshed && (
             <span className="text-xs text-gray-300">
               Last updated:{" "}
